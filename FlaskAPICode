@@ -1,16 +1,49 @@
 from flask import Flask, request, jsonify
-import joblib
-import numpy as np
 
 app = Flask(__name__)
-model = joblib.load('iris_model.pkl')
+books = []
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.route('/books', methods=['GET'])
+def get_books():
+    return jsonify(books)
+
+@app.route('/books', methods=['POST'])
+def add_book():
     data = request.get_json()
-    features = np.array(data['features']).reshape(1, -1)
-    prediction = model.predict(features)
-    return jsonify({'prediction': int(prediction[0])})
+
+    # Input validation
+    if not data or 'title' not in data or 'author' not in data:
+        return jsonify({"error": "Missing 'title' or 'author'"}), 400
+
+    books.append({
+        "title": data["title"],
+        "author": data["author"]
+    })
+    return jsonify({"message": "Book added"}), 201
+
+@app.route('/books/<int:index>', methods=['PUT'])
+def update_book(index):
+    if index >= len(books):
+        return jsonify({"error": "Book not found"}), 404
+
+    data = request.get_json()
+
+    # Input validation
+    if not data or 'title' not in data or 'author' not in data:
+        return jsonify({"error": "Missing 'title' or 'author'"}), 400
+
+    books[index] = {
+        "title": data["title"],
+        "author": data["author"]
+    }
+    return jsonify({"message": "Book updated"})
+
+@app.route('/books/<int:index>', methods=['DELETE'])
+def delete_book(index):
+    if index < len(books):
+        books.pop(index)
+        return jsonify({"message": "Book deleted"})
+    return jsonify({"error": "Book not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
