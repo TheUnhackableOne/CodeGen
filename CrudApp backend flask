@@ -1,0 +1,31 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+books = []
+
+@app.route('/books', methods=['GET'])
+def get_books():
+    return jsonify(books)
+
+@app.route('/books', methods=['POST'])
+def add_book():
+    data = request.get_json()
+    books.append(data)
+    return jsonify({"message": "Book added"}), 201
+
+@app.route('/books/<int:index>', methods=['PUT'])
+def update_book(index):
+    if index < len(books):
+        books[index] = request.get_json()
+        return jsonify({"message": "Book updated"})
+    return jsonify({"error": "Book not found"}), 404
+
+@app.route('/books/<int:index>', methods=['DELETE'])
+def delete_book(index):
+    if index < len(books):
+        books.pop(index)
+        return jsonify({"message": "Book deleted"})
+    return jsonify({"error": "Book not found"}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
