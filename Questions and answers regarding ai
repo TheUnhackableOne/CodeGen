@@ -1,0 +1,3 @@
+How did AI help?: AI rapidly created a functional CRUD backend with Flask. It helped reduce boilerplate time.
+
+Where did you intervene?: Manual validation and production-readiness like error handling, status codes, and optional DB integration.
